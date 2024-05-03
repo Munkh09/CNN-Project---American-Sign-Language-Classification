@@ -1,15 +1,11 @@
 from keras._tf_keras.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 from keras._tf_keras.keras.models import Sequential
-from keras._tf_keras.keras.utils import image_dataset_from_directory
 from keras._tf_keras.keras.preprocessing.image import ImageDataGenerator
 from os import listdir
 
 train_path = 'ASL_Dataset_13k/train'
 val_path = 'ASL_Dataset_13k/val'
 labels = listdir(train_path)
-
-train = image_dataset_from_directory(train_path)
-test = image_dataset_from_directory(val_path)
 
 # Augment images for more robust model
 
