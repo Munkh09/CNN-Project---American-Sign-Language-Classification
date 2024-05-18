@@ -1,48 +1,14 @@
-from keras._tf_keras.keras.utils import load_img, img_to_array
-from os import listdir
+from keras._tf_keras.keras.preprocessing.image import ImageDataGenerator
 from pickle import load
-import numpy as np
-import random
-import pyttsx3
+from os import listdir
 
-test_path = 'ASL_Dataset_165k/test/'
+test_path = 'ASL_Dataset_Reduced/test/'
 labels = listdir(test_path)
-model = load(open('Models/model_165k_acc_auc_20.sav', 'rb'))
-class_list = ['H', 'E', 'L', 'L', 'O', 'Space', 'W', 'O', 'R', 'L', 'D']
-pred_class_list = []
-sentence = ''
+model = load(open('Models/model_reduced_acc_auc_10.sav', 'rb'))
 
-for i in class_list:
-   files = listdir(test_path + i + '/')
-   file = random.choice(files)
+# Normalize pixel values to between 0, 1
+test_datagen = ImageDataGenerator(rescale=(1.0/255.0))
 
-   image = load_img(test_path + i + '/' + file, target_size=(200, 200))
-   image = img_to_array(image)
-   image = image.reshape(1, 200, 200, 3)
-   image = image * (1.0/255.0)
+test_gen = test_datagen.flow_from_directory(directory=test_path, target_size=(128, 128), classes=labels, class_mode='categorical', batch_size=32, seed=1337)
 
-   pred = model.predict(image)
-   classes = np.argmax(pred, axis=1)
-
-   for i in classes:
-      pred_class_list.append(labels[i])
-
-print('Actual:')
-print(class_list)
-print('Predicted:')
-print(pred_class_list)
-
-for i in pred_class_list:
-   if i == 'Space' or i == 'Nothing':
-      letter = ' '
-   else:
-      letter = i
-   sentence += letter
-
-print("(Text) Translation:")
-print(sentence.capitalize())
-
-print("(Audio) Translation:")
-engine = pyttsx3.init()
-engine.say(sentence)
-engine.runAndWait()
+model.evaluate(test_gen)
